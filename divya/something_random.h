@@ -1,10 +1,11 @@
 #include <queue>
 #include <algorithm>
+#include <vector>
 using namespace std;
 
 #define NUM_JUNCTIONS 9
 #define NUM_SIGNALS 4
-
+#define INVALID_SEGMENT 100
 
 // Global variables
 extern int il[NUM_JUNCTIONS][NUM_SIGNALS];
@@ -12,23 +13,18 @@ extern int p_light[NUM_JUNCTIONS][NUM_SIGNALS];
 extern int segment[25][30];
 int count1[NUM_JUNCTIONS][NUM_SIGNALS];
 int segment_info[NUM_JUNCTIONS][NUM_SIGNALS] = {{14, 100, 100, 1}, {21, 0, 100, 3}, {5, 2, 100, 100}, {12, 100, 15, 17}, {22, 16, 20, 19}, {7, 18, 4, 100}, {100, 100, 13, 10}, {100, 11, 23, 8}, {100, 9, 6, 100}};
-/*
-void initialise_queue (queue <int> q[]) {
-  for (int i = 0; i < NUM_JUNCTIONS; i++) {
-    for (int j = 0; j < NUM_SIGNALS; j++) {
-      q[i].push (j);
-    }
-  }
-}
-*/
+vector<queue<int>> q(NUM_JUNCTIONS);
 
-int get_car_count_from_segment (int seg[]) {
+int get_car_count_from_segment (int segmentno) {
   std::cout << "here 5\n";
   int cnt = 0;
+  if (segmentno == INVALID_SEGMENT) {
+    return 0;
+  }
   for (int i = 29; i > 18; i--) {
     std::cout << "here 4" << "\n";
-    if (seg[i] > 0) {
-      std::cout << "here" << seg[i] << "\n";
+    if (segment[segmentno][i] > 0) {
+      std::cout << "here" << segment[segmentno][i] << "\n";
       cnt++;
     } else {
       std::cout << "here 7\n";
@@ -36,7 +32,7 @@ int get_car_count_from_segment (int seg[]) {
   }
   return cnt;
 }
-
+/*
 void check_priority (int seg[]) {
   for (int i = 0; i < NUM_JUNCTIONS; i++) {
     for (int j = 0; j < NUM_SIGNALS; j++) {
@@ -61,13 +57,19 @@ int compare_priority (int car_count[]) {
   }
   return signal_info;
 }
-
-// TO DO:
-// 1) Add queue as global and each junction should have its own queue
-// 2) Remove duplicate code and add more functions
-// 3) Have a main function which calls initialise_signal at only t=0 and update_priority and controller at every t=2sec 
-// 4) For the python plot, find way for a) plotting 4 different values at single point and differentiate between them b) plotting all values in a simple way 
-void scheduler (queue <int> q, int jun[], int priority, int pri[], int first) {
+*/
+int check_priority (int num_cars[]) {
+  int index = 0;
+  for (int i = 0; i < NUM_SIGNALS - 1; i++) {
+    if (num_cars[i] > num_cars[i+1]) {
+      index = i;
+    } else {
+      index = i + 1;
+    }
+  }
+  return index;
+}
+void scheduler (queue <int> q, int jun[], int priority, int pri[], int first, int num_cars[]) {
   int new_light = q.front ();
   q.pop ();
   if (priority == 0) {
@@ -85,23 +87,19 @@ void scheduler (queue <int> q, int jun[], int priority, int pri[], int first) {
       return;
     } else {
       q.push (new_light);
-      scheduler (q, jun, priority, pri, first);
+      scheduler (q, jun, priority, pri, first, num_cars);
     }
   } else {
-    //if multiple signals hasve priority as 1, take the signal with highest numer of cars from segments 19 to 29 
-    int k = segment_info[first][new_light];
-    std::cout<<"here 6"<<k<<"\n";
-    check_priority (segment[k]);
-    int x = compare_priority (count1[first]);
+    int high_pri = check_priority (num_cars);
+
     //if priority = 1 and light is off, change the priority to 0
-    if (jun[new_light] == 0 && pri[new_light] > 0) {
+    if (jun[new_light] == 0 && pri[new_light] > 1) {
       priority = 0;
       q.push (new_light);
-      scheduler (q, jun, priority, pri, first);
+      scheduler (q, jun, priority, pri, first, num_cars);
     }
     //set to green for the signal with priority = 1
-    else if (jun[new_light] != 0 && pri[new_light] > 0) {
-      // else if ( "" && new_light == x) {
+    else if (jun[new_light] != 0 && new_light == high_pri) {
       jun[new_light] = 2;
       std:: cout << "new light from priority " << new_light << "\n";
       pri[new_light] = 0;
@@ -109,7 +107,7 @@ void scheduler (queue <int> q, int jun[], int priority, int pri[], int first) {
       return;
     } else {
       q.push (new_light);
-      scheduler (q, jun, priority, pri, first);
+      scheduler (q, jun, priority, pri, first, num_cars);
     }
   }
 }
@@ -124,18 +122,20 @@ void controller () {
   //simple round robin can be changed based on vehicle information
   //signal is in form of il[i][j]
   for (int i = 0; i < NUM_JUNCTIONS; i++) {
-    queue <int> q;
     int priority = 0;
+    int num_cars[NUM_SIGNALS];
     for (int j = 0; j < NUM_SIGNALS; j++) {
       if (il[i][j] == 2) {
         il[i][j] = 1; //change the green signals to red
       }
-      if (p_light[i][j] > 0) {
+      if (p_light[i][j] > 1) {
         priority = 1;
+        int segmentno = segment_info[i][j];
+        num_cars[j] = get_car_count_from_segment (segmentno);
       }
-      q.push (j);
+      q[i].push (j);
     }
-    scheduler (q, il[i], priority, p_light[i], i);
+    scheduler (q[i], il[i], priority, p_light[i], i, num_cars);
   }
   // print il[i][j] => to verify only one green light is there at each junction
   std::cout << "lights\n";
