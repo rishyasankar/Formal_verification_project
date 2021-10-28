@@ -1,13 +1,18 @@
-#include <iostream>
-using namespace std;
-
 #include <queue>
+#include <algorithm>
+#include <vector>
+using namespace std;
 
 #define NUM_JUNCTIONS 9
 #define NUM_SIGNALS 4
 
-int il[NUM_JUNCTIONS][NUM_SIGNALS] = {{0,1,1,1}, {0,1,1,1}, {0,0,1,1}, {0,1,1,1}, {1,1,1,1}, {0,1,1,1}, {0,0,1,1}, {0,1,1,1}, {0,0,1,1}};
-int p[NUM_JUNCTIONS][NUM_SIGNALS] = {{0,0,0,0}, {0,0,1,0}, {0,0,0,1}, {0,1,1,0}, {1,1,0,1}, {0,1,0,0}, {0,0,0,0}, {0,0,0,1}, {0,1,0,0}};
+// Global variables
+extern int il[NUM_JUNCTIONS][NUM_SIGNALS];
+extern int p_light[NUM_JUNCTIONS][NUM_SIGNALS];
+extern int segment[25][30];
+int count1[NUM_JUNCTIONS][NUM_SIGNALS];
+int segment_info[NUM_JUNCTIONS][NUM_SIGNALS] = {{14, 100, 100, 1}, {21, 0, 100, 3}, {5, 2, 100, 100}, {12, 100, 15, 17}, {22, 16, 20, 19}, {7, 18, 4, 100}, {100, 100, 13, 10}, {100, 11, 23, 8}, {100, 9, 6, 100}};
+vector<queue<int>> q(NUM_JUNCTIONS);
 
 void scheduler (queue <int> q, int jun[], int priority, int pri[], int first) {
   int new_light = q.front ();
@@ -31,13 +36,13 @@ void scheduler (queue <int> q, int jun[], int priority, int pri[], int first) {
     }
   } else {
     //if priority = 1 and light is off, change the priority to 0
-    if (jun[new_light] == 0 && pri[new_light] == 1) {
+    if (jun[new_light] == 0 && pri[new_light] > 1) {
       priority = 0;
       q.push (new_light);
       scheduler (q, jun, priority, pri, first);
     }
     //set to green for the signal with priority = 1
-    else if (jun[new_light] != 0 && pri[new_light] == 1) {
+    else if (jun[new_light] != 0 && pri[new_light] > 1) {
       jun[new_light] = 2;
       std:: cout << "new light from priority " << new_light << "\n";
       pri[new_light] = 0;
@@ -60,18 +65,17 @@ void controller () {
   //simple round robin can be changed based on vehicle information
   //signal is in form of il[i][j]
   for (int i = 0; i < NUM_JUNCTIONS; i++) {
-    queue <int> q;
     int priority = 0;
     for (int j = 0; j < NUM_SIGNALS; j++) {
       if (il[i][j] == 2) {
         il[i][j] = 1; //change the green signals to red
       }
-      if (p[i][j] == 1) {
+      if (p_light[i][j] > 1) {
         priority = 1;
       }
-      q.push (j);
+      q[i].push (j);
     }
-    scheduler (q, il[i], priority, p[i], i);
+    scheduler (q[i], il[i], priority, p_light[i], i);
   }
   // print il[i][j] => to verify only one green light is there at each junction
   std::cout << "lights\n";
@@ -81,10 +85,5 @@ void controller () {
     }
     std::cout << "\n";
   }
-}
-
-int main () {
-  controller ();
-  return 0;
 }
 
