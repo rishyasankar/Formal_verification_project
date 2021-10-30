@@ -6,14 +6,15 @@ int segment[24][30];
 //Possible routes variable
 int *route[15];
 //Cars generation variable
-int *car[500];
+int *car[900];
 //Car generation decision variable
 bool n; 
 //total number of cars
 unsigned int total_cars;
 //total completed cars
 int total_completed_cars;
-//
+//Total crash count
+int total_crash;
 
 //Import from IV team 
 #define NUM_JUNCTIONS 9
@@ -127,20 +128,21 @@ void create_possible_routes(){
 
 }
 
+
 void generate_car(int id){
   // An array containing [array_len,id,segment,pos in segment,list of segments as routes]
   //srand ( time(NULL) ); //initialize the random seed
-  int RandIndex = rand() % 15; std::cout<<"Rand index :"<< RandIndex<<'\n';
+  int RandIndex = rand() % 15; //std::cout<<"Rand index :"<< RandIndex<<'\n';
   car[total_cars] = new int[5+route[RandIndex][0]];
-  car[total_cars][0] = 5+route[RandIndex][0]; std::cout<<car[total_cars][0]<<',';//Length of each car array
-  car[total_cars][1] = total_cars+1;    std::cout<<car[total_cars][1]<<','; // This stores the car_id
-  car[total_cars][2] = -1;car[total_cars][3] = -1;  std::cout<<car[total_cars][2]<<','<<car[total_cars][3]; // The index [2] stores which segment and [3] stores position in the segment
-  car[total_cars][4] = -1; std::cout<<','<<car[total_cars][4];// Stores current segment information
+  car[total_cars][0] = 5+route[RandIndex][0]; //std::cout<<car[total_cars][0]<<',';//Length of each car array
+  car[total_cars][1] = total_cars+1;    //std::cout<<car[total_cars][1]<<','; // This stores the car_id
+  car[total_cars][2] = -1;car[total_cars][3] = -1;  //std::cout<<car[total_cars][2]<<','<<car[total_cars][3]; // The index [2] stores which segment and [3] stores position in the segment
+  car[total_cars][4] = -1; //std::cout<<','<<car[total_cars][4];// Stores current segment information
   for(int i=0;i<route[RandIndex][0];i++){
     car[total_cars][i+5] = route[RandIndex][i+1];
-    std::cout<<','<<car[total_cars][i+5]; //Rest of the array stores sequence of segment numbers which is the route.
+    //std::cout<<','<<car[total_cars][i+5]; //Rest of the array stores sequence of segment numbers which is the route.
   }
-  std::cout<<"\n";
+  //std::cout<<"\n";
 }
 
 
@@ -190,9 +192,9 @@ void update_car(int id){
 void print_car_info(int b){
   if(car[b][2] != 29 && car[b][3] != 30){
     for(int z=0;z<car[b][0];z++){
-      std::cout<<car[b][z]<<",";
+      //std::cout<<car[b][z]<<",";
     }
-  std::cout<<'\n';
+  //std::cout<<'\n';
   }
 }
 
@@ -210,8 +212,6 @@ void clear(){
   for(int j=0;j<15;j++){
     delete route[j];
   }
-  
-  
 
   for(int i=0; i< total_cars ; i++){
     //if(car[i][2] != 29 && car[i][3] == 30){
@@ -222,14 +222,14 @@ void clear(){
 }
 
 void final_pos_car(){
-  std::cout<<"Total cars = "<<total_cars<<'\n';
+  //std::cout<<"Total cars = "<<total_cars<<'\n';
   for(int l=0;l<total_cars;l++){
     //if(car[l][2] != 29 && car[l][3] == 30){
       int length_car = car[l][0];
       for(int m=0;m<length_car;m++){
-        std::cout<<car[l][m]<<',';
+        //std::cout<<car[l][m]<<',';
       }
-      std::cout<<'\n';
+      //std::cout<<'\n';
    //}
   }
 }
