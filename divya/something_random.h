@@ -1,6 +1,7 @@
 #include <queue>
 #include <algorithm>
 #include <vector>
+#include <fstream>
 using namespace std;
 
 #define NUM_JUNCTIONS 9
@@ -13,6 +14,7 @@ extern int p_light[NUM_JUNCTIONS][NUM_SIGNALS];
 extern int segment[25][30];
 int segment_info[NUM_JUNCTIONS][NUM_SIGNALS] = {{14, 100, 100, 1}, {21, 0, 100, 3}, {5, 2, 100, 100}, {12, 100, 15, 17}, {22, 16, 20, 19}, {7, 18, 4, 100}, {100, 100, 13, 10}, {100, 11, 23, 8}, {100, 9, 6, 100}};
 vector<queue<int>> q(NUM_JUNCTIONS);
+fstream outputfile;
 
 void initialise_queue () {
   for (int i = 0; i < NUM_JUNCTIONS; i++) {
@@ -68,7 +70,6 @@ void scheduler (queue <int> q, int jun[], int priority, int pri[], int first, in
     //simple round robin
     if (jun[new_light] != 0) {
       jun[new_light] = 2; //set to green
-      std::cout << new_light <<"\n";
       q.push (new_light);
       return;
     } else {
@@ -98,8 +99,7 @@ void scheduler (queue <int> q, int jun[], int priority, int pri[], int first, in
   }
 }
 
-void controller () {
-  std::cout << "hi\n";
+void controller (int time) {
   //add signal information as inputs may be (should be global)
   //each signal should have information about whether its red or green and which junction it belongs to
   //use simple round robin alogorithm to turn one of them green in each junction
@@ -124,8 +124,10 @@ void controller () {
     scheduler (q[i], il[i], priority, p_light[i], i, num_cars);
   }
   // print il[i][j] => to verify only one green light is there at each junction
-  std::cout << "lights\n";
+  
+  std::cout << "lights at time t = " << time << "\n";
   for (int i = 0; i < NUM_JUNCTIONS; i++) {
+    std::cout << "intersection = " << i << "\n";
     for (int j = 0; j < NUM_SIGNALS; j++) {
       std::cout << il[i][j] << " ";
     }
