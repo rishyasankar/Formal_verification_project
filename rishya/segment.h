@@ -13,8 +13,18 @@ bool n;
 unsigned int total_cars;
 //total completed cars
 int total_completed_cars;
+//remaining cars
+int rem_cars;
 //Total crash count
 int total_crash;
+//variable to indicate crash at junction 0, when two cars try to complete at A in the same time
+int init_crash_count;
+
+//variable to indicate initial box where car is generated and returned // pos is assumed as -1,-1
+int init;
+
+//variable to count no of cars running in wri=ong direction
+int mis_dir_cnt;
 
 //Import from IV team 
 #define NUM_JUNCTIONS 9
@@ -138,6 +148,7 @@ void generate_car(int id){
   car[total_cars][1] = total_cars+1;    //std::cout<<car[total_cars][1]<<','; // This stores the car_id
   car[total_cars][2] = -1;car[total_cars][3] = -1;  //std::cout<<car[total_cars][2]<<','<<car[total_cars][3]; // The index [2] stores which segment and [3] stores position in the segment
   car[total_cars][4] = -1; //std::cout<<','<<car[total_cars][4];// Stores current segment information
+  init = car[total_cars][1];
   for(int i=0;i<route[RandIndex][0];i++){
     car[total_cars][i+5] = route[RandIndex][i+1];
     //std::cout<<','<<car[total_cars][i+5]; //Rest of the array stores sequence of segment numbers which is the route.
@@ -150,9 +161,11 @@ void update_car(int id){
   
   int car_array_len = car[id][0];
   int car_route_len = car[id][0]-5;
+  int y_pre,y_pos;
 
+  y_pre = car[id][3];
   if(car[id][2] == -1 && car[id][3] == -1 && car[id][4] == -1){
-    if (segment[car[id][5]][0] == 0){
+    if (segment[car[id][5]][0] == 0 && (il[0][1] == 2)){
       //segment[car[id][2]][car[id][3]]=0;
       car[id][4] = 5; car[id][2] = car[id][car[id][4]]; car[id][3] = 0;segment[car[id][2]][car[id][3]]=car[id][1];
     }
@@ -166,10 +179,12 @@ void update_car(int id){
     else 
       if (car[id][3] == 29) {
         if(car[id][4] == car_array_len-1){
+          if(il[0][0] == 2 || il[0][3] == 2)
           //std::cout<<car[id][2]<<','<<car[id][3]<<'\n';
-          segment[car[id][2]][car[id][3]]=0;
-          car[id][2] = 30;
-          car[id][3] = 30;
+            segment[car[id][2]][car[id][3]]=0;
+            car[id][2] = 30;
+            car[id][3] = 30;
+            init_crash_count = init_crash_count+1;
         }   
         else if (car[id][4] < car_array_len-1){
           if((segment[car[id][car[id][4]+1]][0] == 0) &&     (il[signal[car[id][car[id][4]]][0]][signal[car[id][car[id][4]]][1]] == 2)) {
@@ -187,6 +202,11 @@ void update_car(int id){
         //delete car[id];
       }
     }
+
+    y_pos = car[id][3];
+    if(y_pre > y_pos && y_pre != 29){
+      mis_dir_cnt = mis_dir_cnt + 1;
+    }
 }
 
 void print_car_info(int b){
@@ -201,6 +221,7 @@ void print_car_info(int b){
 
 void update_all_car_pos(){
   for(int l=0;l<total_cars;l++){
+    
     update_car(l);
     //print_car_info(l);
   }
