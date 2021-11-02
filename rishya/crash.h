@@ -478,7 +478,7 @@ void red_vio_pos_check(){
 int check_r_vio(){
   int cccc = 0;
   for(int i=0;i<24;i++){
-    if(r_pre_ch[i] == r_pos_ch[i] && r_pre_ch[i] != 0 ){
+    if(r_pre_ch[i] != r_pos_ch[i] && r_pre_ch[i] != 0 ){
       cccc = cccc+1;
     }
   }
