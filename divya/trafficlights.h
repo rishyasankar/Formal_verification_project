@@ -1,6 +1,7 @@
-#include <queue.h>
+#include <queue>
 
 il[9][4] = {0};
+vector<queue<int>> q(9);
 
 void initialise_queue () {
   for (int i = 0; i < 9; i++) {
