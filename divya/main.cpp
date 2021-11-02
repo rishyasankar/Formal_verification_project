@@ -2,16 +2,21 @@
 using namespace std;
 
 #include "signal.h"
-
+#include "trafficinfo.h"
 
 int il[NUM_JUNCTIONS][NUM_SIGNALS];
 int p_light[NUM_JUNCTIONS][NUM_SIGNALS];
-int segment[25][30];
+int segment[24][30];
+int next_segment_info_uturn[24][30];
 
 int main () {
-  //initialise_queue (q);
+  initialise_queue ();
+  int time = 0;
+  
+  assume_traffic5();
   initial_signal_priority();
 
+/*
   for(int i = 0; i <= 23; i++) {
     for(int j = 0; j <= 29; j++) {
       segment[i][j] = 0;
@@ -45,7 +50,7 @@ int main () {
 
   //segment20
   segment[20][29]= 12;
-  segment[20][28]=13 ;
+  segment[20][28]= 13 ;
   segment[20][27]= 14;
   segment[20][26]= 15;
   segment[20][25]= 16;
@@ -59,11 +64,18 @@ int main () {
   //segment16
   segment[16][29]= 34;
   segment[16][18]= 35;
-
+*/
   
   priority_signal();
+  while (time < 3600) {
+    controller (time);
+    //check_vehicle_collisions ();
+    time = time + 2;
 
-  controller ();
+  }
+  
   return 0;
 }
+
+
 
