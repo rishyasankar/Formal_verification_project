@@ -1,0 +1,1 @@
+From main.py, output plots are generated for different time steps. We have included a few time plots for no traffic assumption and test case 3 which takes traffic assumption as given in traffic3 in trafficinfo.h
