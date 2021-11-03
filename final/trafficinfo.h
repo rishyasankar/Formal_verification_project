@@ -254,7 +254,62 @@ int no_traffic[24][30] = {0};
 extern int segment[24][30];
 extern int next_segment_info_uturn[24][30];
 
-void assume_traffic ()
+void assume_notraffic()
+{
+  int k = 0;
+  for (int i = 0; i < 24; i++) {
+    for(int j = 0; j < 30; j++) {
+      segment[i][j] = no_traffic[i][j];
+      k++;
+    }
+  }    
+}
+
+void assume_traffic1()
+{
+  int k = 0;
+  for (int i = 0; i < 24; i++) {
+    for(int j = 0; j < 30; j++) {
+      segment[i][j] = traffic1[k];
+      k++;
+    }
+  }    
+}
+
+void assume_traffic2()
+{
+  int k = 0;
+  for (int i = 0; i < 24; i++) {
+    for(int j = 0; j < 30; j++) {
+      segment[i][j] = traffic2[k];
+      k++;
+    }
+  }    
+}
+
+void assume_traffic3()
+{
+  int k = 0;
+  for (int i = 0; i < 24; i++) {
+    for(int j = 0; j < 30; j++) {
+      segment[i][j] = traffic3[k];
+      k++;
+    }
+  }    
+}
+
+void assume_traffic4()
+{
+  int k = 0;
+  for (int i = 0; i < 24; i++) {
+    for(int j = 0; j < 30; j++) {
+      segment[i][j] = traffic4[k];
+      k++;
+    }
+  }    
+}
+
+void assume_traffic5()
 {
   int k=0;
   for (int i = 0; i < 24; i++) {
@@ -266,7 +321,7 @@ void assume_traffic ()
   }    
 }
 
-void assume_traffic6 () {
+void assume_traffic6() {
   int k = 0;
   for (int i = 0; i < 24; i++) {
     for (int j = 0; j < 30; j++) {
@@ -277,7 +332,7 @@ void assume_traffic6 () {
   }
 }
 
-void assume_traffic7 () {
+void assume_traffic7() {
   int k = 0;
   for (int i = 0; i < 24; i++) {
     for (int j = 0; j < 30; j++) {
@@ -287,13 +342,3 @@ void assume_traffic7 () {
   }
 }
 
-void assume_traffic ()
-{
-  int k = 0;
-  for (int i = 0; i < 24; i++) {
-    for(int j = 0; j < 30; j++) {
-      segment[i][j] = traffic[k];
-      k++;
-    }
-  }    
-}
