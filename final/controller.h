@@ -12,6 +12,7 @@ extern int p_light[NUM_JUNCTIONS][NUM_SIGNALS];
 extern int segment[24][30];
 vector<queue<int>> q(NUM_JUNCTIONS);
 
+//segment information for each light at each intersection to check while assigning priority
 int segment_info[NUM_JUNCTIONS][NUM_SIGNALS] = {{14, 100, 100, 1}, {21, 0, 100, 3}, {5, 2, 100, 100}, {12, 100, 15, 17}, {22, 16, 20, 19}, {7, 18, 4, 100}, {100, 100, 13, 10}, {100, 11, 23, 8}, {100, 9, 6, 100}};
 
 int uturn_segment_info[NUM_JUNCTIONS][NUM_SIGNALS] = {{15, 100, 100, 0}, {20, 1, 100, 2}, {4, 3, 100, 100}, {13, 100, 14, 16}, {23, 17, 21, 18}, {6, 19, 5, 100}, {100, 100, 12, 11}, {100, 10, 22, 9}, {100, 8, 7, 100}};
@@ -81,7 +82,7 @@ void scheduler (int jun[], int priority, int pri[], int first, int num_cars[]) {
   if (priority == 0) {
     //at first junction, always allow cars from node A if no other car is returning back to A
     if (first == 0) {
-      jun[1] = 2; //change to the signal which faces A
+      jun[1] = 2; //change light to green for the signal which faces A
       return;
     }
 
@@ -117,13 +118,6 @@ void scheduler (int jun[], int priority, int pri[], int first, int num_cars[]) {
 }
 
 void controller (int time) {
-  //add signal information as inputs may be (should be global)
-  //each signal should have information about whether its red or green and which junction it belongs to
-  //use simple round robin alogorithm to turn one of them green in each junction
-  //always turn green lights red and then turn red lights into green
-  //this should be done for each junction parallely (ideally)
-  //simple round robin can be changed based on vehicle information
-  //signal is in form of il[i][j]
   for (int i = 0; i < NUM_JUNCTIONS; i++) {
     int priority = 0;
     int num_cars[NUM_SIGNALS] = {0};
@@ -139,7 +133,6 @@ void controller (int time) {
     }
     scheduler (il[i], priority, p_light[i], i, num_cars);
   }
-  // print il[i][j] => to verify only one green light is there at each junction
   
   std::cout << "lights at time t = " << time << "\n";
   for (int i = 0; i < NUM_JUNCTIONS; i++) {
@@ -203,65 +196,3 @@ void check_collision () {
     }
   }
 }
-
-/*
-int next_segment_info[NUM_JUNCTIONS][NUM_SIGNALS][3] = {0};
-int car_next_pos[3] = {0};
-
-void get_car_next_position (int i, int j) {
-  int car_next_pos[3] = {0};
-  for (int k = 0; k < 3; k++) {
-    int segno = next_segment_info[i][j][k];
-    if (segno == INVALID_SEGMENT) {
-      car_next_pos[k] = 0;
-    } else {
-      car_next_pos[k] = segment[segno][0];
-    }
-  }
-}
-
-int get_car_position (int i, int j) {
-  int segno = segment_info[i][j];
-  if (segno == INVALID_SEGMENT) {
-    return 0;
-  }
-  return segment[segno][29];
-}
-
-bool check_collision (int car_current_pos) {
-  for (int k = 0; k < 3; k++) {
-    if (car_current_pos == car_next_pos[k]) {
-      return true;
-    }
-  }
-  return false;
-}
-
-void check_uturn_violations () {
-  for (int i = 0; i < NUM_JUNCTIONS; i++) {
-    for (int j = 0; j < NUM_SIGNALS; j++) {
-      int segno = segment_info[i][j];
-      int uturnsegno = next_segment_info[i][j];
-
-    }
-  }
-}
-
-void check_vehicle_collisions () {
-  for (int i = 0; i < NUM_JUNCTIONS; i++) {
-    int collision_count = 0;
-    for (int j = 0; j < NUM_SIGNALS; j++) {
-      int segno = segment_info[i][j];
-      int car_current_pos = get_car_position (i, j);
-      get_car_next_position (i, j);
-      if (check_collision (car_current_pos)) {
-        collision_count++;
-      }
-    }
-    if (collision_count > 0) {
-      std::cout << "Collision occured at junction " << i << "\n";
-    } else {
-      std::cout << "No Collision at junction " << i << "\n";
-    }
-  }
-}*/
