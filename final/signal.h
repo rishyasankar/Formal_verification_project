@@ -1,6 +1,7 @@
 #include "controller.h"
 
 //0-off,1-red,2-green
+//initial lights at intersection
 void initial_signal_priority()
 {
   for(int i=0;i<=8;i++)
@@ -9,7 +10,7 @@ void initial_signal_priority()
     {
       if((i==0&&j==2)||(i==1&&j==2)||(i==2&&j==2)||(i==2&&j==3)||(i==3&&j==1)||(i==5&&j==3)||(i==6&&j==0)||(i==6&&j==1)||(i==7&&j==0)||(i==8&&j==0)||(i==8&&j==3))
       {
-        il[i][j]=0;
+        il[i][j]=0; 
       }
       else if ((i==0&&j==1)||(i==1&&j==1)||(i==2&&j==1)||(i==5&&j==2)||(i==7&&j==3)||(i==6&&j==3)||(i==3&&j==0))
       {
@@ -30,7 +31,6 @@ void initial_signal_priority()
 void priority_signal()
 {
   p_light[0][0]=segment[14][29];
-  //p_light[0][1] faces node A => so no priority required
   p_light[0][3]=segment[1][29];
   p_light[1][0]=segment[21][29];
   p_light[1][1]=segment[0][29];
