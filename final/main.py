@@ -1,3 +1,4 @@
+##for plotting traffic system at different time intervals showing switching of lights
 import matplotlib.pyplot as plt
 
 m = 0
