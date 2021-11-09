@@ -83,6 +83,7 @@ void scheduler (int jun[], int priority, int pri[], int first, int num_cars[]) {
     //at first junction, always allow cars from node A if no other car is returning back to A
     if (first == 0) {
       jun[1] = 2; //change light to green for the signal which faces A
+      q[first].push (new_light);
       return;
     }
 
