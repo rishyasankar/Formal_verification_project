@@ -477,8 +477,10 @@ void red_vio_pos_check(){
 
 int check_r_vio(){
   int cccc = 0;
-  for(int i=0;i<24;i++){
+  for(int i=0;i<23;i++){
     if(r_pre_ch[i] != r_pos_ch[i] && r_pre_ch[i] != 0 ){
+      std::cout<<t<<'\n';
+      std::cout<<r_pre_ch[i]<<'\t'<<r_pos_ch[i]<<'\t'<<i<<'\n';
       cccc = cccc+1;
     }
   }

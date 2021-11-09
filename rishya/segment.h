@@ -3,8 +3,19 @@
 int t;
 //Contains empty slots as 0 and filled slots with Carid
 int segment[24][30]; 
+
+//Import from IV team 
+#define NUM_JUNCTIONS 9
+#define NUM_SIGNALS 4
+
+//int il[9][4] = {0};
+std::vector<std::queue<int>> q(9);
+
+
+
+
 //Possible routes variable
-int *route[15];
+int *route[19];
 //Cars generation variable
 int *car[900];
 //Car generation decision variable
@@ -19,23 +30,25 @@ int rem_cars;
 int total_crash;
 //variable to indicate crash at junction 0, when two cars try to complete at A in the same time
 int init_crash_count;
-
 //variable to indicate initial box where car is generated and returned // pos is assumed as -1,-1
 int init;
-
 //variable to count no of cars running in wri=ong direction
 int mis_dir_cnt;
-
-//Import from IV team 
-#define NUM_JUNCTIONS 9
-#define NUM_SIGNALS 4
-
-
-//
-int il[NUM_JUNCTIONS][NUM_SIGNALS] = {{2,2,2,2}, {2,2,2,2}, {2,2,2,2}, {2,2,2,2}, {2,2,2,2}, {2,2,2,2}, {2,2,2,2}, {2,2,2,2}, {2,2,2,2}};
-
-//Variable to store signal to car pos
+//Variable to store signal to segment and car pos
 int signal[24][2];
+
+
+
+int il[9][4] = {{2,2,0,2}, {2,2,0,2}, {2,2,0,0}, {2,0,2,2}, {2,2,2,2}, {2,2,2,0}, {0,0,2,2}, {0,2,2,2}, {0,2,2,0}};
+
+
+int arr[19] = {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18};
+int freq[19] = {5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5};
+int ii, nn = sizeof(arr) / sizeof(arr[0]);
+
+
+
+
 
 
 //Create segments needed
@@ -136,24 +149,72 @@ void create_possible_routes(){
   route[14] = new int[11];
   route[14][0]=10;route[14][1]=15;route[14][2]=16;route[14][3]=21;route[14][4]=2;route[14][5]=4;route[14][6]=6;route[14][7]=8;route[14][8]=10;route[14][9]=12;route[14][10]=15;
 
+  route[15] = new int[15];
+  route[15][0]=14;route[15][1]=0;route[15][2]=20;route[15][3]=17;route[15][4]=13;route[15][5]=11;route[15][6]=23;route[15][7]=18;route[15][8]=6;route[15][9]=8;route[15][10]=23;route[15][11]=18;route[15][12]=5;route[13][10]=3;route[14][10]=1;
+
+  route[16] = new int[13];
+  route[16][0]=12;route[16][1]=0;route[16][2]=20;route[16][3]=18;route[16][4]=5;route[16][5]=3;route[16][6]=20;route[16][7]=18;route[16][8]=6;route[16][9]=8;route[16][10]=10;route[16][11]=12;route[16][12]=14;
+
+  route[17] = new int[13];
+  route[17][0]=12;route[17][1]=0;route[17][2]=20;route[17][3]=18;route[17][4]=5;route[17][5]=3;route[17][6]=20;route[17][7]=18;route[17][8]=6;route[17][9]=8;route[17][10]=23;route[17][11]=21;route[17][12]=1;
+
+  route[18] = new int[13];
+  route[18][0]=12;route[18][1]=0;route[18][2]=20;route[18][3]=18;route[18][4]=5;route[18][5]=3;route[18][6]=20;route[18][7]=18;route[18][8]=6;route[18][9]=8;route[18][10]=23;route[18][11]=17;route[18][12]=14;
+
 }
+
+int findCeil(int arr[], int r, int l, int h)
+{
+    int mid;
+    while (l < h)
+    {
+        mid = l + ((h - l) >> 1); // Same as mid = (l+h)/2
+        (r > arr[mid]) ? (l = mid + 1) : (h = mid);
+    }
+    return (arr[l] >= r) ? l : -1;
+}
+ 
+
+// The main function that returns a random number
+// from arr[] according to distribution array
+// defined by freq[]. n is size of arrays.
+int myRand(int arr[], int freq[], int n)
+{
+    // Create and fill prefix array
+    int prefix[n], i;
+    prefix[0] = freq[0];
+    for (i = 1; i < n; ++i)
+        prefix[i] = prefix[i - 1] + freq[i];
+ 
+    // prefix[n-1] is sum of all frequencies.
+    // Generate a random number with
+    // value from 1 to this sum
+    int r = (rand() % prefix[n - 1]) + 1;
+ 
+    // Find index of ceiling of r in prefix array
+    int indexc = findCeil(prefix, r, 0, n - 1);
+    return arr[indexc];
+}
+ 
 
 
 void generate_car(int id){
   // An array containing [array_len,id,segment,pos in segment,list of segments as routes]
   //srand ( time(NULL) ); //initialize the random seed
-  int RandIndex = rand() % 15; //std::cout<<"Rand index :"<< RandIndex<<'\n';
+  int RandIndex = myRand(arr, freq, nn);
+  //rand() % 15; //std::cout<<"Rand index :"<< RandIndex<<'\n';
+
   car[total_cars] = new int[5+route[RandIndex][0]];
-  car[total_cars][0] = 5+route[RandIndex][0]; //std::cout<<car[total_cars][0]<<',';//Length of each car array
-  car[total_cars][1] = total_cars+1;    //std::cout<<car[total_cars][1]<<','; // This stores the car_id
-  car[total_cars][2] = -1;car[total_cars][3] = -1;  //std::cout<<car[total_cars][2]<<','<<car[total_cars][3]; // The index [2] stores which segment and [3] stores position in the segment
-  car[total_cars][4] = -1; //std::cout<<','<<car[total_cars][4];// Stores current segment information
+  car[total_cars][0] = 5+route[RandIndex][0]; std::cout<<car[total_cars][0]<<',';//Length of each car array
+  car[total_cars][1] = total_cars+1;    std::cout<<car[total_cars][1]<<','; // This stores the car_id
+  car[total_cars][2] = -1;car[total_cars][3] = -1;  std::cout<<car[total_cars][2]<<','<<car[total_cars][3]; // The index [2] stores which segment and [3] stores position in the segment
+  car[total_cars][4] = -1; std::cout<<','<<car[total_cars][4];// Stores current segment information
   init = car[total_cars][1];
   for(int i=0;i<route[RandIndex][0];i++){
     car[total_cars][i+5] = route[RandIndex][i+1];
-    //std::cout<<','<<car[total_cars][i+5]; //Rest of the array stores sequence of segment numbers which is the route.
+    std::cout<<','<<car[total_cars][i+5]; //Rest of the array stores sequence of segment numbers which is the route.
   }
-  //std::cout<<"\n";
+  std::cout<<"\n";
 }
 
 
@@ -179,15 +240,16 @@ void update_car(int id){
     else 
       if (car[id][3] == 29) {
         if(car[id][4] == car_array_len-1){
-          if(il[0][0] == 2 || il[0][3] == 2)
+          if((il[0][0] == 2 && car[id][car[id][4]] == 14 )  || (il[0][3] == 2 && car[id][car[id][4]] == 1)) {
           //std::cout<<car[id][2]<<','<<car[id][3]<<'\n';
             segment[car[id][2]][car[id][3]]=0;
             car[id][2] = 30;
             car[id][3] = 30;
             init_crash_count = init_crash_count+1;
+          }
         }   
         else if (car[id][4] < car_array_len-1){
-          if((segment[car[id][car[id][4]+1]][0] == 0) &&     (il[signal[car[id][car[id][4]]][0]][signal[car[id][car[id][4]]][1]] == 2)) {
+          if((segment[car[id][car[id][4]+1]][0] == 0) &&  (il[signal[car[id][car[id][4]]][0]][signal[car[id][car[id][4]]][1]] == 2)) {
           segment[car[id][2]][car[id][3]]=0;
           car[id][4] = car[id][4] + 1;
           car[id][2] = car[id][car[id][4]];
@@ -230,7 +292,7 @@ void update_all_car_pos(){
 
 void clear(){
   
-  for(int j=0;j<15;j++){
+  for(int j=0;j<19;j++){
     delete route[j];
   }
 
@@ -248,9 +310,9 @@ void final_pos_car(){
     //if(car[l][2] != 29 && car[l][3] == 30){
       int length_car = car[l][0];
       for(int m=0;m<length_car;m++){
-        //std::cout<<car[l][m]<<',';
+        std::cout<<car[l][m]<<',';
       }
-      //std::cout<<'\n';
+      std::cout<<'\n';
    //}
   }
 }
